@@ -11,8 +11,24 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
+async function sleep(ms: number): Promise<string> {
+	return new Promise((resolve) =>
+		setTimeout(() => {
+			resolve('今起きた！');
+		}, ms)
+	);
+}
+
+// export default {
+// 	async fetch(request, env, ctx): Promise<Response> {
+// 		const message: string = await sleep(30000);
+// 		return new Response(message);
+// 	},
+// } satisfies ExportedHandler<Env>;
+
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		return new Response('Hello World!');
+		const message: string = await sleep(100000);
+		return new Response(message);
 	},
 } satisfies ExportedHandler<Env>;
