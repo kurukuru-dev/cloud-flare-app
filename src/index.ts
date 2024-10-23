@@ -11,24 +11,21 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-async function sleep(ms: number): Promise<string> {
-	return new Promise((resolve) =>
-		setTimeout(() => {
-			resolve('今起きた！');
-		}, ms)
-	);
-}
-
-// export default {
-// 	async fetch(request, env, ctx): Promise<Response> {
-// 		const message: string = await sleep(30000);
-// 		return new Response(message);
-// 	},
-// } satisfies ExportedHandler<Env>;
-
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		const message: string = await sleep(100000);
-		return new Response(message);
+		// Get the pathname from the request
+		const pathname = new URL(request.url).pathname;
+
+		if (pathname === '/api/upload' && request.method === 'POST') {
+			// Get the file from the request
+			const formData = await request.formData();
+			const file = formData.get('pdfFile') as File;
+
+			// Upload the file to Cloudflare R2
+			await env.MY_BUCKET.put(file.name, file.stream());
+			return new Response('File uploaded successfully', { status: 200 });
+		}
+
+		return new Response('incorrect route', { status: 404 });
 	},
 } satisfies ExportedHandler<Env>;
